@@ -31,6 +31,10 @@ use std::os;
 static VERSION: &'static str = "0.0.1";
 static VERSION_DATE: &'static str = "0000-00-00";
 
+// default values
+static HOST: &'static str = "localhost";
+static PORT: &'static str = "52698";
+
 /**
  * Show usage information.
  */
@@ -49,9 +53,20 @@ fn showusage(program: &str, opts: &[OptGroup]) {
 fn main() {
     let args    = os::args();
     let program = args[0].as_slice();
+    
+    let host = match os::getenv("RMATE_HOST") {
+        Some(val) => val,
+        None      => HOST.to_string()
+    };
+    
+    let port = match os::getenv("RMATE_PORT") {
+        Some(val) => val,
+        None      => PORT.to_string()
+    };
+    
     let opts    = [
-        getopts::optopt("H", "host", "Connect to HOST. Use 'auto' to detect the host from SSH.", "HOST"),
-        getopts::optopt("p", "port", "Port number to use for connection.", "PORT"),
+        getopts::optopt("H", "host", format!("Connect to HOST. Use 'auto' to detect the host from SSH. Defaults to {}.", host).as_slice(), "HOST"),
+        getopts::optopt("p", "port", format!("Port number to use for connection. Defaults to {}.", port).as_slice(), "PORT"),
         getopts::optflag("w", "wait", "Wait for file to be closed by TextMate."),
         getopts::optopt("l", "line", "Place caret on line number after loading file.", "LINE"),
         getopts::optopt("m", "name", "The display name shown in TextMate.", "NAME"),
