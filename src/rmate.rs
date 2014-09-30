@@ -28,6 +28,10 @@ extern crate getopts;
 use getopts::{optopt, optflag, OptGroup};
 use std::os;
 
+
+static VERSION: &'static str = "0.0.1";
+static VERSION_DATE: &'static str = "0000-00-00";
+
 /**
  * Show usage information.
  */
@@ -45,7 +49,7 @@ fn showusage(program: &str, opts: &[OptGroup]) {
  */
 fn main() {
     let args    = os::args();
-    let program = args[0].clone();
+    let program = args[0].as_slice();
     let opts    = [
         getopts::optopt("H", "host", "Connect to HOST. Use 'auto' to detect the host from SSH.", "HOST"),
         getopts::optopt("p", "port", "Port number to use for connection.", "PORT"),
@@ -59,5 +63,25 @@ fn main() {
         getopts::optflag("", "version", "Show version and exit.")
     ];
     
-    showusage(program.as_slice(), opts);
+    let matches = match getopts::getopts(args.tail(), opts) {
+        Ok(m) => m,
+        Err(_) => {
+            showusage(program, opts);
+            os::set_exit_status(1);
+        
+            return;
+        }
+    };
+
+    if matches.opt_present("help") {
+        showusage(program, opts);
+        os::set_exit_status(1);
+        
+        return;
+    } else if matches.opt_present("version") {
+        println!("rmate-rs {} ({})", VERSION, VERSION_DATE);
+        os::set_exit_status(1);
+        
+        return;
+    }
 }
