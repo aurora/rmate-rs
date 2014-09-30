@@ -54,12 +54,12 @@ fn main() {
     let args    = os::args();
     let program = args[0].as_slice();
     
-    let host = match os::getenv("RMATE_HOST") {
+    let mut host = match os::getenv("RMATE_HOST") {
         Some(val) => val,
         None      => HOST.to_string()
     };
     
-    let port = match os::getenv("RMATE_PORT") {
+    let mut port = match os::getenv("RMATE_PORT") {
         Some(val) => val,
         None      => PORT.to_string()
     };
@@ -97,5 +97,14 @@ fn main() {
         os::set_exit_status(1);
         
         return;
+    }
+    
+    match matches.opt_str("host") {
+        Some(val) => host = val,
+        None      => ()
+    }
+    match matches.opt_str("port") {
+        Some(val) => port = val,
+        None      => ()
     }
 }
