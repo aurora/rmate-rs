@@ -28,7 +28,6 @@ extern crate getopts;
 use getopts::{optopt, optflag, OptGroup};
 use std::os;
 
-
 static VERSION: &'static str = "0.0.1";
 static VERSION_DATE: &'static str = "0000-00-00";
 
@@ -64,7 +63,7 @@ fn main() {
     ];
     
     let matches = match getopts::getopts(args.tail(), opts) {
-        Ok(m) => m,
+        Ok(m)  => m,
         Err(_) => {
             showusage(program, opts);
             os::set_exit_status(1);
