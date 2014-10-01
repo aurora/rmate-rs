@@ -108,6 +108,19 @@ fn main() {
         VERBOSE = matches.opt_present("verbose");
     }
 
+    if matches.free.is_empty() {
+        showusage(program, opts);
+        os::set_exit_status(1);
+        
+        return;
+    }
+    
+    let ref filepath = matches.free[0];
+        
+    if matches.free.len() > 1 {
+        log(format!("There are more than one files specified. Opening only {} and ignoring other.", filepath).as_slice());
+    }
+
     if matches.opt_present("help") {
         showusage(program, opts);
         os::set_exit_status(1);
