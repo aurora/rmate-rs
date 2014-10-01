@@ -162,6 +162,18 @@ fn main() {
         VERBOSE = matches.opt_present("verbose");
     }
 
+    if matches.opt_present("help") {
+        showusage(program, opts);
+        os::set_exit_status(1);
+        
+        return;
+    } else if matches.opt_present("version") {
+        println!("rmate-rs {} ({})", VERSION, VERSION_DATE);
+        os::set_exit_status(1);
+        
+        return;
+    }
+    
     if matches.free.is_empty() {
         showusage(program, opts);
         os::set_exit_status(1);
@@ -189,18 +201,6 @@ fn main() {
         }
     };
 
-    if matches.opt_present("help") {
-        showusage(program, opts);
-        os::set_exit_status(1);
-        
-        return;
-    } else if matches.opt_present("version") {
-        println!("rmate-rs {} ({})", VERSION, VERSION_DATE);
-        os::set_exit_status(1);
-        
-        return;
-    }
-    
     match matches.opt_str("host") {
         Some(val) => host = val,
         None      => ()
