@@ -24,14 +24,19 @@
  *
  */
 
+#![allow(unused_must_use)]
+
 extern crate getopts;
 use getopts::{optopt, optflag, OptGroup};
 use std::os;
+use std::io;
 
 static VERSION: &'static str = "0.0.1";
 static VERSION_DATE: &'static str = "0000-00-00";
 
 // default values
+static mut VERBOSE: bool = false;
+
 static HOST: &'static str = "localhost";
 static PORT: &'static str = "52698";
 
@@ -45,6 +50,18 @@ fn showusage(program: &str, opts: &[OptGroup]) {
 {usage}",
     program = program,
     usage   = getopts::usage("Open a file in TextMate.", opts));
+}
+
+/**
+ * Message logging.
+ */
+fn log(msg: &str) {
+    unsafe {
+        if VERBOSE {
+            let mut out = io::stderr();
+            out.write_str(format!("{}\n", msg).as_slice());
+        }
+    }
 }
 
 /**
@@ -87,6 +104,10 @@ fn main() {
         }
     };
 
+    unsafe {
+        VERBOSE = matches.opt_present("verbose");
+    }
+
     if matches.opt_present("help") {
         showusage(program, opts);
         os::set_exit_status(1);
@@ -107,4 +128,6 @@ fn main() {
         Some(val) => port = val,
         None      => ()
     }
+    
+    let verbose = matches.opt_present("verbose");
 }
