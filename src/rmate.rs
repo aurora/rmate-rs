@@ -33,6 +33,7 @@ use getopts::{optopt, optflag, OptGroup};
 use std::os;
 use std::io;
 use std::io::fs::PathExtensions;
+use std::io::TcpStream;
 use std::str;
 
 static VERSION: &'static str = "0.0.1";
@@ -229,4 +230,8 @@ fn main() {
     let verbose = matches.opt_present("verbose");
     let wait    = matches.opt_present("wait");
     let force   = matches.opt_present("force");
+    
+    // connect to TextMate
+    let stream = TcpStream::connect(host.as_slice(), port);
+    drop(stream);
 }
