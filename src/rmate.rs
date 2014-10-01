@@ -188,8 +188,6 @@ fn main() {
         }
     };
 
-    println!("filename: {}, realpath: {}, displayname: {}", filepath, resolvedpath, displayname);
-
     if matches.opt_present("help") {
         showusage(program, opts);
         os::set_exit_status(1);
