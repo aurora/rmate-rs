@@ -42,6 +42,32 @@ static mut VERBOSE: bool = false;
 static HOST: &'static str = "localhost";
 static PORT: &'static str = "52698";
 
+/**
+ * Determine hostname.
+ * @see     https://github.com/uutils/coreutils/blob/master/src/hostname/hostname.rs
+ */
+fn gethostname() -> String {
+    extern {
+        fn gethostname(name: *mut libc::c_char, namelen: libc::size_t) -> libc::c_int;
+    }
+
+    let namelen = 256u;
+    let mut name = Vec::from_elem(namelen, 0u8);
+
+    let err = unsafe {
+        gethostname (name.as_mut_ptr() as *mut libc::c_char,
+                                        namelen as libc::size_t)
+    };
+
+    if err != 0 {
+        log("Cannot determine hostname");
+    }
+
+    let last_char = name.iter().position(|byte| *byte == 0).unwrap_or(namelen);
+
+    str::from_utf8(name.slice_to(last_char)).unwrap().to_string()
+}
+
 /*** WORKAROUND FOR MISSING realpath (ref: https://github.com/rust-lang/rust/issues/11857#issuecomment-55329505) ***/
 
 #[cfg(unix)]
