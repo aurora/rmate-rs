@@ -32,6 +32,8 @@ extern crate getopts;
 use getopts::{optopt, optflag, OptGroup};
 use std::os;
 use std::io;
+use std::io::fs::PathExtensions;
+use std::str;
 
 static VERSION: &'static str = "0.0.1";
 static VERSION_DATE: &'static str = "0000-00-00";
@@ -175,12 +177,15 @@ fn main() {
     let (resolvedpath, displayname) = match filepath {
         "-" => (
                     "".to_string(),
-                    format!("hostname:untitled")
+                    format!("{}:untitled", gethostname())
                 ),
-        _   => (
-                    realpath(Path::new(filepath)).as_str().to_string(),
-                    format!("hostname:{}", filepath)
-                )
+        _   => {
+            let tmp = Path::new(filepath);
+            (
+                (if tmp.exists() { realpath(tmp).as_str().to_string() } else { "".to_string() }),
+                format!("{}:{}", gethostname(), filepath)
+            )
+        }
     };
 
     println!("filename: {}, realpath: {}, displayname: {}", filepath, resolvedpath, displayname);
