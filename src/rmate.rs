@@ -142,5 +142,11 @@ fn main() {
         None      => ()
     }
     
+    let selection = match matches.opt_str("line") {
+        Some(val) => val,
+        None      => "".to_string()
+    };
     let verbose = matches.opt_present("verbose");
+    let wait    = matches.opt_present("wait");
+    let force   = matches.opt_present("force");
 }
