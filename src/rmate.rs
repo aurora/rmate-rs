@@ -208,6 +208,15 @@ fn main() {
         Some(val) => port = val,
         None      => ()
     }
+    let port = match from_str::<u16>(port.as_slice()) {
+        Some(val) => val,
+        None      => {
+            log(format!("Invalid port specified {}.", port).as_slice());
+            os::set_exit_status(1);
+        
+            return;
+        }
+    };
     
     let selection = match matches.opt_str("line") {
         Some(val) => val,
