@@ -26,7 +26,9 @@
 
 #![allow(unused_must_use)]
 
+extern crate libc;
 extern crate getopts;
+
 use getopts::{optopt, optflag, OptGroup};
 use std::os;
 use std::io;
@@ -39,6 +41,29 @@ static mut VERBOSE: bool = false;
 
 static HOST: &'static str = "localhost";
 static PORT: &'static str = "52698";
+
+/*** WORKAROUND FOR MISSING realpath (ref: https://github.com/rust-lang/rust/issues/11857#issuecomment-55329505) ***/
+
+#[cfg(unix)]
+fn realpath(p: Path) -> Path {
+    use libc::{c_char};
+    use std::c_str::{CString};
+    extern {
+        fn realpath(path: *const c_char, resolved: *mut c_char) -> *const c_char;
+    }
+    let mut p = p.into_vec();
+    p.push(0);
+    let new_p = unsafe { realpath(p.as_ptr() as *const c_char, 0 as *mut c_char) };
+    unsafe { Path::new(CString::new(new_p, true).as_bytes_no_nul()) }
+}
+
+#[cfg(windows)]
+fn realpath(p: Path) -> Path {
+    // TODO
+    p
+}
+
+/*******************************************************************************************************************/
 
 /**
  * Show usage information.
@@ -115,11 +140,24 @@ fn main() {
         return;
     }
     
-    let ref filepath = matches.free[0];
+    let filepath = matches.free[0].as_slice();
         
     if matches.free.len() > 1 {
         log(format!("There are more than one files specified. Opening only {} and ignoring other.", filepath).as_slice());
     }
+
+    let (resolvedpath, displayname) = match filepath {
+        "-" => (
+                    "".to_string(),
+                    format!("hostname:untitled")
+                ),
+        _   => (
+                    realpath(Path::new(filepath)).as_str().to_string(),
+                    format!("hostname:{}", filepath)
+                )
+    };
+
+    println!("filename: {}, realpath: {}, displayname: {}", filepath, resolvedpath, displayname);
 
     if matches.opt_present("help") {
         showusage(program, opts);
