@@ -213,6 +213,10 @@ fn main() {
         Some(val) => val,
         None      => "".to_string()
     };
+    let filetype = match matches.opt_str("type") {
+        Some(val) => val,
+        None      => "".to_string()
+    };
     let verbose = matches.opt_present("verbose");
     let wait    = matches.opt_present("wait");
     let force   = matches.opt_present("force");
