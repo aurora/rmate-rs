@@ -33,7 +33,8 @@ use getopts::{optopt, optflag, OptGroup};
 use std::os;
 use std::io;
 use std::io::fs::PathExtensions;
-use std::io::TcpStream;
+use std::io::net::tcp::TcpStream;
+use std::io::BufferedStream;
 use std::str;
 
 static VERSION: &'static str = "0.0.1";
@@ -232,6 +233,31 @@ fn main() {
     let force   = matches.opt_present("force");
     
     // connect to TextMate
-    let stream = TcpStream::connect(host.as_slice(), port);
+    let socket = TcpStream::connect(host.as_slice(), port);
+    let mut stream = BufferedStream::new(socket);
+    
+    log(stream.read_line().unwrap().as_slice());
+    
+    stream.write("open\n".as_bytes());
+    stream.write(format!("display-name: {}\n", displayname).as_bytes());
+    stream.write(format!("real-path: {}\n", resolvedpath).as_bytes());
+    stream.write("data-on-save: yes\n".as_bytes());
+    stream.write("re-activate: yes\n".as_bytes());
+    stream.write(format!("token: {}\n", filepath).as_bytes());
+    
+    if selection.as_slice() != "" {
+        stream.write(format!("selection: {}\n", selection).as_bytes());
+    }
+    if filetype.as_slice() != "" {
+        stream.write(format!("file-type: {}\n", filetype).as_bytes());
+    }
+    
+    if filepath.as_slice() != "-" {
+        stream.write("data: 5\n".as_bytes());
+        stream.write("hallo\n.\n".as_bytes());
+    }
+    
+    stream.flush();
+
     drop(stream);
 }
